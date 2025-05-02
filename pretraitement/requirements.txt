@@ -1,0 +1,9 @@
+numpy
+pyaudio
+librosa
+scipy
+pytest
+matplotlib
+flask
+sounddevice
+werkzeug
