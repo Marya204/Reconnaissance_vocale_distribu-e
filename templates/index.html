@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Processing</title>
+</head>
+<body>
+    <h1>Téléchargez ou enregistrez un fichier audio WAV</h1>
+
+    <!-- Formulaire de téléchargement -->
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="audio_file" accept=".wav">
+        <button type="submit">Télécharger</button>
+    </form>
+
+    <!-- Section pour l'enregistrement audio -->
+    <h2>Enregistrer l'audio</h2>
+    <button id="recordButton">Enregistrer</button>
+    <button id="stopButton" disabled>Arrêter</button>
+    <audio id="audioPlayer" controls></audio>
+
+    <div id="messages"></div>
+    <div id="transcription"></div>
+    <button id="processButton" disabled>Traiter l'audio</button>
+
+    <script>
+        let audioBlob;
+        let mediaRecorder;
+
+        // Fonction pour démarrer l'enregistrement audio
+        document.getElementById('recordButton').addEventListener('click', function() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.ondataavailable = function(event) {
+                        audioBlob = event.data;
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        document.getElementById('audioPlayer').src = audioUrl;
+                    };
+                    mediaRecorder.start();
+                    document.getElementById('stopButton').disabled = false;
+                    document.getElementById('recordButton').disabled = true;
+                })
+                .catch(error => console.error('Erreur d\'accès au microphone', error));
+        });
+
+        // Fonction pour arrêter l'enregistrement
+        document.getElementById('stopButton').addEventListener('click', function() {
+            mediaRecorder.stop();
+            document.getElementById('stopButton').disabled = true;
+            document.getElementById('recordButton').disabled = false;
+        });
+
+        // Envoi du fichier audio téléchargé
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('messages').innerText = data.message;
+                if (data.message === "Fichier reçu") {
+                    document.getElementById('processButton').disabled = false;
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+
+        // Fonction pour traiter l'audio enregistré
+        document.getElementById('processButton').addEventListener('click', function() {
+            if (!audioBlob) {
+                return alert("Aucun audio à traiter !");
+            }
+
+            const formData = new FormData();
+            formData.append("audio_file", audioBlob, "recorded_audio.wav");
+
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('messages').innerText = data.message;
+                if (data.transcription) {
+                    document.getElementById('transcription').innerHTML = `<p>Texte transcrit : ${data.transcription}</p>`;
+                }
+            })
+            .catch(error => console.error('Erreur:', error));
+        });
+    </script>
+</body>
+</html>

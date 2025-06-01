@@ -1,0 +1,19 @@
+# === Dossiers a ignorer ===
+__pycache__/
+
+# === Fichiers audio et spectrogrammes ===
+*.wav
+*.png
+
+# === Fichiers Python compilés ===
+*.pyc
+
+# === Modèles TensorFlow / Keras ===
+*.pb
+
+# === Fichiers de log ===
+*.log
+
+# === Fichiers système ===
+.DS_Store
+Thumbs.db
