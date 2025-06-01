@@ -1,0 +1,50 @@
+2025-04-25 18:05:51,933 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-04-25 18:05:51,933 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-25 18:14:16,454 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-04-25 18:14:16,455 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-25 18:14:20,470 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:14:20] "GET / HTTP/1.1" 200 -
+2025-04-25 18:14:20,505 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:14:20] "[33mGET /static/css/styles.css HTTP/1.1[0m" 404 -
+2025-04-25 18:14:20,531 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:14:20] "[33mGET /static/js/scripts.js HTTP/1.1[0m" 404 -
+2025-04-25 18:15:11,010 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:15:11] "GET / HTTP/1.1" 200 -
+2025-04-25 18:15:11,047 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:15:11] "[33mGET /static/css/styles.css HTTP/1.1[0m" 404 -
+2025-04-25 18:15:11,056 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:15:11] "[33mGET /static/js/scripts.js HTTP/1.1[0m" 404 -
+2025-04-25 18:20:53,008 - __main__ - INFO - Démarrage du serveur sur 0.0.0.0:5000
+2025-04-25 18:20:54,354 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.8.103:5000
+2025-04-25 18:20:54,354 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-04-25 18:20:54,358 - werkzeug - INFO -  * Restarting with stat
+2025-04-25 18:20:55,542 - __main__ - INFO - Démarrage du serveur sur 0.0.0.0:5000
+2025-04-25 18:20:55,571 - werkzeug - WARNING -  * Debugger is active!
+2025-04-25 18:20:55,577 - werkzeug - INFO -  * Debugger PIN: 313-358-955
+2025-04-25 18:20:59,917 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:20:59] "GET / HTTP/1.1" 200 -
+2025-04-25 18:21:00,034 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:21:00] "[33mGET /static/css/styles.css HTTP/1.1[0m" 404 -
+2025-04-25 18:21:00,064 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:21:00] "[33mGET /static/js/scripts.js HTTP/1.1[0m" 404 -
+2025-04-25 18:24:17,838 - werkzeug - INFO -  * Detected change in 'C:\\Users\\BeeClick\\Desktop\\reconnaissance-vocale\\app.py', reloading
+2025-04-25 18:24:18,013 - werkzeug - INFO -  * Restarting with stat
+2025-04-25 18:29:22,769 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:29:22] "GET / HTTP/1.1" 200 -
+2025-04-25 18:29:23,116 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:29:23] "GET /static/css/styles.css HTTP/1.1" 200 -
+2025-04-25 18:29:23,117 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:29:23] "GET /static/js/scripts.js HTTP/1.1" 200 -
+2025-04-25 18:29:29,127 - app - INFO - Début d'enregistrement pour 5.0 secondes
+2025-04-25 18:29:29,131 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:29:29] "[35m[1mPOST /record HTTP/1.1[0m" 202 -
+2025-04-25 18:29:54,767 - app - INFO - Traitement audio réussi
+2025-04-25 18:29:54,770 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:29:54] "POST /stop_recording HTTP/1.1" 200 -
+2025-04-25 18:30:00,665 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:30:00] "GET / HTTP/1.1" 200 -
+2025-04-25 18:30:00,716 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:30:00] "[36mGET /static/css/styles.css HTTP/1.1[0m" 304 -
+2025-04-25 18:30:00,721 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:30:00] "[36mGET /static/js/scripts.js HTTP/1.1[0m" 304 -
+2025-04-25 18:30:08,319 - app - INFO - Début d'enregistrement pour 5.0 secondes
+2025-04-25 18:30:08,320 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:30:08] "[35m[1mPOST /record HTTP/1.1[0m" 202 -
+2025-04-25 18:51:57,011 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:51:57] "GET / HTTP/1.1" 200 -
+2025-04-25 18:51:57,126 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:51:57] "GET /static/css/styles.css HTTP/1.1" 200 -
+2025-04-25 18:51:57,157 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:51:57] "GET /static/js/scripts.js HTTP/1.1" 200 -
+2025-04-25 18:51:59,734 - app - INFO - Début d'enregistrement pour 5.0 secondes
+2025-04-25 18:51:59,739 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 18:51:59] "[35m[1mPOST /record HTTP/1.1[0m" 202 -
+2025-04-25 19:02:51,200 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 19:02:51] "GET / HTTP/1.1" 200 -
+2025-04-25 19:02:51,337 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 19:02:51] "[36mGET /static/css/styles.css HTTP/1.1[0m" 304 -
+2025-04-25 19:02:51,347 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 19:02:51] "[36mGET /static/js/scripts.js HTTP/1.1[0m" 304 -
+2025-04-25 19:03:06,958 - app - INFO - Début d'enregistrement pour 5.0 secondes
+2025-04-25 19:03:06,961 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 19:03:06] "[35m[1mPOST /record HTTP/1.1[0m" 202 -
+2025-04-25 19:03:29,589 - werkzeug - INFO - 127.0.0.1 - - [25/Apr/2025 19:03:29] "[31m[1mPOST /stop_recording HTTP/1.1[0m" 400 -
