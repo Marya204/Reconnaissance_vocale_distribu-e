@@ -1,0 +1,19 @@
+name: Postprocess
+description: Nettoyage de la transcription
+
+inputs:
+  - name: input_txt
+    type: String
+
+outputs:
+  - name: cleaned_txt
+    type: String
+
+implementation:
+  container:
+    image: asmaemisbah/asr-postprocess:latest
+    command: [
+      "python3", "-u", "/postprocess.py",
+      "--input_txt", {inputValue: input_txt},
+      "--cleaned_txt", {outputPath: cleaned_txt}
+    ]

@@ -1,0 +1,22 @@
+name: Inference
+description: Exécute la prédiction du modèle ASR
+
+inputs:
+  - name: audio_path
+    type: File   # 🔄 Corrigé ici
+  - name: model_path
+    type: String
+
+outputs:
+  - name: output_txt
+    type: String
+
+implementation:
+  container:
+    image: asmaemisbah/asr-inference:latest
+    command: [
+      "python3", "-u", "/inference_component.py",
+      "--audio_path", {inputPath: audio_path},     # 🔄 Corrigé ici
+      "--model_path", {inputValue: model_path},
+      "--output_txt", {outputPath: output_txt}
+    ]

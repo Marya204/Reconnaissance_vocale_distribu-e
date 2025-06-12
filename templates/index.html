@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Capture and Processing</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Audio Capture and Transcription</h1>
+        
+        <div class="control-panel">
+            <button id="recordBtn">Record 30s</button>
+            <span>or</span>
+            <input type="file" id="audioUpload" accept=".wav">
+            <button id="processBtn">Process File</button>
+        </div>
+        
+        <div class="audio-player">
+            <audio id="audioPlayback" controls></audio>
+        </div>
+
+        <!-- Transcription display -->
+        <div class="transcription">
+            <h2>Transcription</h2>
+            <p id="transcriptionText">No transcription yet.</p>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

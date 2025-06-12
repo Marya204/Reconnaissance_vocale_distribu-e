@@ -1,0 +1,16 @@
+Flask
+Werkzeug
+numpy==1.24.3
+scipy
+librosa==0.10.1
+matplotlib
+pillow
+sounddevice
+pytest
+tensorflow-cpu==2.15.0
+keras==2.15.0
+tensorboard==2.15.2
+ml-dtypes==0.2.0
+typing-extensions==4.5.0
+pyaudio
+

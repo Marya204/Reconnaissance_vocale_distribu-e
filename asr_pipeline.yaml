@@ -1,0 +1,139 @@
+# PIPELINE DEFINITION
+# Name: asr-pipeline
+# Description: Pipeline for audio speech recognition
+# Inputs:
+#    audio_input: str
+#    model_path: str
+components:
+  comp-inference:
+    executorLabel: exec-inference
+    inputDefinitions:
+      artifacts:
+        audio_path:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+      parameters:
+        model_path:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        output_txt:
+          parameterType: STRING
+  comp-postprocess:
+    executorLabel: exec-postprocess
+    inputDefinitions:
+      parameters:
+        input_txt:
+          parameterType: STRING
+    outputDefinitions:
+      parameters:
+        cleaned_txt:
+          parameterType: STRING
+  comp-preprocess-audio:
+    executorLabel: exec-preprocess-audio
+    inputDefinitions:
+      parameters:
+        input_path:
+          parameterType: STRING
+    outputDefinitions:
+      artifacts:
+        output:
+          artifactType:
+            schemaTitle: system.Artifact
+            schemaVersion: 0.0.1
+deploymentSpec:
+  executors:
+    exec-inference:
+      container:
+        command:
+        - python3
+        - -u
+        - /inference_component.py
+        - --audio_path
+        - '{{$.inputs.artifacts[''audio_path''].path}}'
+        - --model_path
+        - '{{$.inputs.parameters[''model_path'']}}'
+        - --output_txt
+        - '{{$.outputs.parameters[''output_txt''].output_file}}'
+        image: asmaemisbah/asr-inference:latest
+    exec-postprocess:
+      container:
+        command:
+        - python3
+        - -u
+        - /postprocess.py
+        - --input_txt
+        - '{{$.inputs.parameters[''input_txt'']}}'
+        - --cleaned_txt
+        - '{{$.outputs.parameters[''cleaned_txt''].output_file}}'
+        image: asmaemisbah/asr-postprocess:latest
+    exec-preprocess-audio:
+      container:
+        command:
+        - python3
+        - -u
+        - /preprocess.py
+        - --input_path
+        - '{{$.inputs.parameters[''input_path'']}}'
+        - --output_path
+        - '{{$.outputs.artifacts[''output''].path}}'
+        image: asmaemisbah/asr-preprocess:latest
+pipelineInfo:
+  description: Pipeline for audio speech recognition
+  name: asr-pipeline
+root:
+  dag:
+    tasks:
+      inference:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-inference
+        dependentTasks:
+        - preprocess-audio
+        inputs:
+          artifacts:
+            audio_path:
+              taskOutputArtifact:
+                outputArtifactKey: output
+                producerTask: preprocess-audio
+          parameters:
+            model_path:
+              componentInputParameter: model_path
+        taskInfo:
+          name: inference
+      postprocess:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-postprocess
+        dependentTasks:
+        - inference
+        inputs:
+          parameters:
+            input_txt:
+              taskOutputParameter:
+                outputParameterKey: output_txt
+                producerTask: inference
+        taskInfo:
+          name: postprocess
+      preprocess-audio:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-preprocess-audio
+        inputs:
+          parameters:
+            input_path:
+              componentInputParameter: audio_input
+        taskInfo:
+          name: preprocess-audio
+  inputDefinitions:
+    parameters:
+      audio_input:
+        parameterType: STRING
+      model_path:
+        parameterType: STRING
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.13.0

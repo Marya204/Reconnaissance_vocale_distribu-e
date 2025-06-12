@@ -1,0 +1,27 @@
+# Ignore datasets
+LibriSpeech/
+*.wav
+*.mp3
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore virtual env
+env/
+venv/
+
+# Ignore model checkpoints
+*.ckpt
+*.pth
+*.pt
+*.onnx
+
+# Ignore large log files or outputs
+*.log
+*.csv
+*.tsv
+*.json
+outputs/
+echo "dev-clean.tar.gz" >> .gitignore
+
