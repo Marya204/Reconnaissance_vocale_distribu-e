@@ -6,18 +6,23 @@ from tqdm import tqdm
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
-import soundfile as sf
+import re
 from PIL import Image
+import csv
+from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 # --- Configuration ---
 DATASETS = {
-    "dev-clean": "http://www.openslr.org/resources/12/dev-clean.tar.gz",
+    "train-clean-100": "http://www.openslr.org/resources/12/train-clean-100.tar.gz",
 }
-
 BASE_DIR = "datasets"
-INPUT_DIR = os.path.join(BASE_DIR, "LibriSpeech/dev-clean")
+INPUT_DIR = os.path.join(BASE_DIR, "LibriSpeech/train-clean-100")
 OUTPUT_DIR = "data/spectrograms"
 TRANSCRIPT_FILE = "data/transcriptions.txt"
+MAX_FILES = None  # No limit, process all files in train-clean-100
+MAX_DURATION_SEC = 30
+ALPHABET = "abcdefghijklmnopqrstuvwxyz "
+alphabet_set = set(ALPHABET)
 
 os.makedirs(BASE_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -40,30 +45,22 @@ def extract_tar(tar_path, extract_to):
     with tarfile.open(tar_path) as tar:
         tar.extractall(path=extract_to)
 
-# --- Sauvegarde de spectrogrammes ---
-def save_mel_spectrogram(wav_path, output_path):
-    y, sr = sf.read(wav_path)
-    mel = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128)
+# --- Sauvegarde du spectrogramme ---
+def save_mel_spectrogram(audio_path, output_path):
+    y, sr = librosa.load(audio_path, sr=16000)
+    y, _ = librosa.effects.trim(y)
+    duration = len(y) / sr
+    if duration > MAX_DURATION_SEC:
+        return False
+    mel = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, hop_length=32)
     mel_db = librosa.power_to_db(mel, ref=np.max)
+    mel_norm = (mel_db - mel_db.min()) / (mel_db.max() - mel_db.min() + 1e-6)
+    mel_img = (mel_norm * 255).astype(np.uint8)
+    img = Image.fromarray(mel_img)
+    img.save(output_path)
+    return True
 
-    plt.figure(figsize=(1.28, 1.28), dpi=100)
-    plt.axis('off')
-    plt.imshow(mel_db, cmap='gray')
-    plt.tight_layout(pad=0)
-    plt.savefig(output_path, bbox_inches='tight', pad_inches=0)
-    plt.close()
-
-# --- Nettoyage des transcriptions (enlève apostrophes) ---
-def clean_transcriptions(file_path):
-    with open(file_path, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-    with open(file_path, "w", encoding="utf-8") as f:
-        for line in lines:
-            img, text = line.strip().split("|")
-            cleaned = text.replace("'", "")  # enlève apostrophes
-            f.write(f"{img}|{cleaned}\n")
-
-# --- Préparation du dataset complet ---
+# --- Préparation du dataset ---
 def prepare_dataset():
     for name, url in DATASETS.items():
         archive_path = os.path.join(BASE_DIR, f"{name}.tar.gz")
@@ -77,86 +74,57 @@ def prepare_dataset():
             print("Extraction...")
             extract_tar(archive_path, BASE_DIR)
 
-    # Génération des spectrogrammes + transcriptions
     transcripts = []
+    count = 0
+    print("Génération des spectrogrammes...")
     for root, _, files in os.walk(INPUT_DIR):
         for file in files:
-            if file.endswith(".flac"):
-                full_path = os.path.join(root, file)
-                base_name = Path(file).stem
-                out_path = os.path.join(OUTPUT_DIR, f"{base_name}.png")
-                save_mel_spectrogram(full_path, out_path)
-
-            elif file.endswith(".txt"):
-                with open(os.path.join(root, file), "r", encoding="utf-8") as f:
-                    for line in f:
-                        parts = line.strip().split(" ", 1)
-                        if len(parts) == 2:
-                            audio_id, text = parts
-                            transcripts.append(f"{audio_id}.png|{text.lower()}")
-
+            if MAX_FILES is not None and count >= MAX_FILES:
+                break
+            if not file.endswith(".flac"):
+                continue
+            full_path = os.path.join(root, file)
+            base_name = Path(file).stem
+            out_path = os.path.join(OUTPUT_DIR, f"{base_name}.png")
+            # Load and process original audio
+            try:
+                y, sr = librosa.load(full_path, sr=16000)
+                y, _ = librosa.effects.trim(y)
+            except Exception as e:
+                print(f"[LOAD ERROR] {base_name}: {e}")
+                continue
+            # Generate and save original spectrogram
+            mel = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=128, hop_length=32)
+            mel_db = librosa.power_to_db(mel, ref=np.max)
+            mel_norm = (mel_db - mel_db.min()) / (mel_db.max() - mel_db.min() + 1e-6)
+            mel_img = (mel_norm * 255).astype(np.uint8)
+            img = Image.fromarray(mel_img)
+            img.save(out_path)
+            # Process label
+            transcription_file = os.path.join(root, file).replace(".flac", ".txt").rsplit("-", 1)[0] + ".trans.txt"
+            if not os.path.exists(transcription_file):
+                continue
+            with open(transcription_file, "r", encoding="utf-8") as tf:
+                for line in tf:
+                    if line.startswith(base_name):
+                        _, text = line.strip().split(" ", 1)
+                        label = text.lower().replace("'", "").strip()
+                        label = re.sub(r"[^a-z ]", "", label)
+                        label = ' '.join(label.split())
+                        word_count = len(label.split())
+                        if word_count < 1 or word_count > 10:
+                            break
+                        if set(label) - alphabet_set:
+                            print(f"[⚠️ Caractères invalides] {base_name} → {label}")
+                            break
+                        transcripts.append(f"{base_name}.png|{label}")
+                        count += 1
+                        break
     with open(TRANSCRIPT_FILE, "w", encoding="utf-8") as f:
         for line in transcripts:
             f.write(line + "\n")
-
-    clean_transcriptions(TRANSCRIPT_FILE)
-    print("✅ Préparation terminée. Les spectrogrammes sont dans `data/spectrograms`.")
-
-
-def load_data(spectrogram_dir=OUTPUT_DIR, transcript_file=TRANSCRIPT_FILE,
-              img_height=128, img_width=128):
-
-    reduction_factor = 4  # Remplace 2 par 4 si ta CNN réduit largeur par 4
-
-    alphabet = "abcdefghijklmnopqrstuvwxyz "
-    char_to_num = {char: idx + 1 for idx, char in enumerate(alphabet)}  # 0 = blank
-
-    images = []
-    labels = []
-    input_lengths = []
-    label_lengths = []
-
-    with open(transcript_file, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    max_input_length = img_width // reduction_factor  # ex: 128//4=32
-
-    for line in lines:
-        img_name, transcript = line.strip().split("|")
-        img_path = os.path.join(spectrogram_dir, img_name)
-        if not os.path.exists(img_path):
-            continue
-
-        label_seq = [char_to_num.get(c, 0) for c in transcript if c in char_to_num]
-        if len(label_seq) == 0:
-            continue
-
-        if len(label_seq) > max_input_length:
-            continue  # transcription trop longue
-
-        img = Image.open(img_path).convert('L')
-        img = img.resize((img_width, img_height))
-        img_array = np.array(img) / 255.0
-        img_array = np.expand_dims(img_array, axis=-1)
-
-        images.append(img_array)
-        labels.append(label_seq)
-        input_lengths.append(max_input_length)  # même pour tous, correct maintenant
-        label_lengths.append(len(label_seq))
-
-    max_label_len = max(label_lengths)
-    labels_padded = np.zeros((len(labels), max_label_len), dtype=np.int32)
-    for i, label_seq in enumerate(labels):
-        labels_padded[i, :len(label_seq)] = label_seq
-
-    images = np.array(images, dtype=np.float32)
-    input_lengths = np.array(input_lengths, dtype=np.int32)
-    label_lengths = np.array(label_lengths, dtype=np.int32)
-
-    return images, labels_padded, input_lengths, label_lengths
-
-
-
+    print(f"\n✅ {count} fichiers audio traités avec transcriptions valides.")
+    print(f"📄 Fichier généré : {TRANSCRIPT_FILE}")
 
 if __name__ == "__main__":
     prepare_dataset()
